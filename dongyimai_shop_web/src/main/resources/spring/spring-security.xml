@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!--配置不进行安全拦截-->
+    <security:http pattern="/favicon.ico" security="none"></security:http>
+    <security:http pattern="/*.html" security="none"></security:http>
+    <security:http pattern="/css/**" security="none"></security:http>
+    <security:http pattern="/img/**" security="none"></security:http>
+    <security:http pattern="/js/**" security="none"></security:http>
+    <security:http pattern="/plugins/**" security="none"></security:http>
+    <security:http pattern="/seller/add.do" security="none"></security:http>
+
+    <!--安全验证配置（需要用户进行登录）-->
+    <security:http use-expressions="false">  <!--use-expressions是否使用spring表达式-->
+        <!--权限资源-->
+        <security:intercept-url pattern="/**" access="ROLE_SELLER"></security:intercept-url>
+        <!--通过form表单进行登录操作-->
+        <!--login-page自定义登录页面-->
+        <!--default-target-url自定义登录成功页面-->
+        <!--authentication-failure-url自定义登录失败页面-->
+        <security:form-login login-page="/shoplogin.html" default-target-url="/admin/index.html"
+                             authentication-failure-url="/shoplogin.html" always-use-default-target="true"></security:form-login>
+        <security:csrf disabled="true"></security:csrf>
+        <security:headers>
+            <security:frame-options policy="SAMEORIGIN"/>
+        </security:headers>
+        <!--退出登录-->
+        <security:logout></security:logout>
+    </security:http>
+
+    <!--安全验证管理器配置-->
+    <security:authentication-manager>
+        <security:authentication-provider user-service-ref="userDetailsService">
+            <security:password-encoder ref="bCryptPasswordEncoder"></security:password-encoder>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <bean id="userDetailsService" class="com.wzp.shop.service.UserDetailsServiceImpl"></bean>
+
+    <bean id="bCryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></bean>
+</beans>
